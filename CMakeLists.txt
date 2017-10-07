@@ -35,6 +35,16 @@ add_executable(Move_square src/Move_suqare.cpp)
 target_link_libraries(Move_square ${catkin_LIBRARIES})
 add_dependencies(Move_square ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+# the node: move following a square in a SET speed
+add_executable(speed_control src/speed_control.cpp)
+target_link_libraries(speed_control ${catkin_LIBRARIES})
+add_dependencies(speed_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# the node: move following a PID speed CONCTOL
+add_executable(pid_control src/pid_control.cpp)
+target_link_libraries(pid_control ${catkin_LIBRARIES})
+add_dependencies(pid_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 # the node: move forward and back with odom
 add_executable(Keyboard_Control src/Keyboard_Control.cpp)
 target_link_libraries(Keyboard_Control ${catkin_LIBRARIES})
