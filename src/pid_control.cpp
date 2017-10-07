@@ -53,7 +53,7 @@ float PID_realize_a(float Position){
     //pid.SetPosition=Position;
     pid.ActualAngle=Position;
     pid.err=pid.SetAngle+pid.ActualAngle;
-    ROS_INFO("ERROR:%f",pid.err);
+    //ROS_INFO("ERROR:%f",pid.err);
     pid.integral+=pid.err;
     pid.speed=pid.Kp*pid.err+pid.Ki*pid.integral+pid.Kd*(pid.err-pid.err_last);
     pid.err_last=pid.err;
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     float goal_distance = 1.0;
 //    float angular_speed = -0.4;
     double goal_angle = M_PI_2l;
-    double angular_tolerance = 0.0436332;
+    double angular_tolerance = 0.0036332;
 
     int rate = 1000;
     ros::Rate loop_rate(rate);
@@ -138,11 +138,33 @@ int main(int argc, char **argv)
         for (int i = 0; i < 4; ++i)
         {
             PID_init();
+
+            Pose_Type Pose_tmp;
+            Pose_tmp = Get_RobotPose();
+            double Distance = 0;
+            // Move forward
+            while(Distance < goal_distance && !ros::isShuttingDown())
+            {
+                //loop_rate.sleep();
+                Pose_Currenrt = Get_RobotPose();
+                Distance = sqrt(pow(Pose_Currenrt.first.x() - Pose_tmp.first.x(), 2) +
+                                pow(Pose_Currenrt.first.y() - Pose_tmp.first.y(), 2));
+                Move_cmd.linear.x= PID_realize_l(Distance);
+                //ROS_INFO("POSE:%f;%f;%f;%f",Pose_Currenrt.first.x(),Pose_Currenrt.first.y(),Pose_Currenrt.first.z(),Pose_Currenrt.second);
+                ROS_INFO("liner SPEED:%f",Move_cmd.linear.x);
+                OdomOutBack_pub.publish(Move_cmd);
+            }
+
+            // Stop the robot
+            Reset_MoveCmd(Move_cmd);
+            OdomOutBack_pub.publish(Move_cmd);
+            // Sleep for one second
+            ros::Duration(1).sleep();
+
             double last_angle = Pose_Currenrt.second;
             double turn_angle = 0.0;
             double delta_angle;
-
-            while(fabs(turn_angle) < goal_angle &&  !ros::isShuttingDown())
+            while(fabs(turn_angle-angular_tolerance) < goal_angle &&  !ros::isShuttingDown())
             {
                 Move_cmd.angular.z =-1*PID_realize_a(turn_angle);
                 OdomOutBack_pub.publish(Move_cmd);
@@ -158,6 +180,7 @@ int main(int argc, char **argv)
                 loop_rate.sleep();
             }
             // Stop the robot
+            ROS_INFO("POSE:%f;%f;%f;%f",Pose_Currenrt.first.x(),Pose_Currenrt.first.y(),Pose_Currenrt.first.z(),Pose_Currenrt.second);
             Reset_MoveCmd(Move_cmd);
             OdomOutBack_pub.publish(Move_cmd);
             ros::Duration(1).sleep();
@@ -165,28 +188,7 @@ int main(int argc, char **argv)
 
 
             //Move_cmd.linear.x = linear_speed;
-            Pose_Type Pose_tmp;
-            Pose_tmp = Get_RobotPose();
 
-
-            double Distance = 0;
-            // Move forward
-            while(Distance < goal_distance && !ros::isShuttingDown())
-            {
-                //loop_rate.sleep();
-                Pose_Currenrt = Get_RobotPose();
-                Distance = sqrt(pow(Pose_Currenrt.first.x() - Pose_tmp.first.x(), 2) +
-                                pow(Pose_Currenrt.first.y() - Pose_tmp.first.y(), 2));
-                Move_cmd.linear.x= PID_realize_l(Distance);
-                //ROS_INFO("POSE:%f;%f;%f;%f",Pose_Currenrt.first.x(),Pose_Currenrt.first.y(),Pose_Currenrt.first.z(),Pose_Currenrt.second);
-                ROS_INFO("liner SPEED:%f",Move_cmd.linear.x);
-                OdomOutBack_pub.publish(Move_cmd);
-            }
-            // Stop the robot
-            Reset_MoveCmd(Move_cmd);
-            OdomOutBack_pub.publish(Move_cmd);
-            // Sleep for one second
-            ros::Duration(1).sleep();
 
             // Rotate left 180 degrees
 

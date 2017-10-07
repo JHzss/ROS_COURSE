@@ -1,0 +1,8 @@
+prefix=/home/jh/catkin_ws/src/Ros_Course/cmake-build-debug/devel
+
+Name: rbx1_control
+Description: Description of rbx1_control
+Version: 1.0.0
+Cflags: 
+Libs: -L/home/jh/catkin_ws/src/Ros_Course/cmake-build-debug/devel/lib 
+Requires: roscpp sensor_msgs std_msgs tf geometry_msgs nav_msgs

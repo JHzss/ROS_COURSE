@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/jh/catkin_ws/src/Ros_Course/cmake-build-debug/devel/setup.sh
